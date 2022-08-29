@@ -1007,16 +1007,27 @@ section {
     var periods = arr[1];
     var largestUnder = -1;
     myArray = []
-    for (let k in periods){
 
+    var schoolStart = 10000000;
+    for (let k in periods){
       k= parseInt(k)
+      if (k < schoolStart){
+        schoolStart = k
+      }
       myArray.push([periods[k][1], proccessTime(k) + " -> " + proccessTime(periods[parseInt(k)][0])])
       if (k < val && k > largestUnder){
         largestUnder = k;
       }
     }
-    period = periods[largestUnder][1]
-    goal = periods[largestUnder][0];
+    if (largestUnder == -1){
+      goal = schoolStart
+      period = "Before School"
+    }
+    else{
+      period = periods[largestUnder][1]
+      goal = periods[largestUnder][0];
+    }
+    
 
   }
   const countDownDate = function() {
