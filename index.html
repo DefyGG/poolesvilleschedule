@@ -850,7 +850,7 @@ section {
       <h1>PHS Schedule</h1>
       <h2 class = "date">Today's Date: <strong> %ss </strong></h2>
       <h2 class = "period">Current Period: <strong> %d </strong></h2>
-      <h2 >Time until period ends...</h2>
+      <h2 class = "timeuntil">Time until %inf</h2>
       <div class="countdown d-flex justify-content-center" data-count="2023/12/3">
         <div>
           <h3>%h</h3>
@@ -883,6 +883,14 @@ section {
           <p class = "stype">Please contact Daniel Mathew (467975@mcpsmd.net) if you find any errors!</p>
         
         </div>
+        <hr>
+        <div class="section-title">
+          <p class = "stype"><strong> Hey! Glad you're here. Just want to inform you of a few things... </strong></p>
+          <p class = "stype">Current Version: 1.0.7 </p>
+          <p class = "stype">Very Important: The website has NOT been officially released yet - currently under beta testing.</p>
+          <p class = "stype">Latest Update: Timer between transitions</p>
+        </div>
+        <hr>
       </div>
   </main>
   <footer id="footer">
@@ -964,6 +972,7 @@ section {
   const periodoutput = document.getElementsByClassName('period')[0].innerHTML;
   const typeoutput = document.getElementsByClassName('stype')[0].innerHTML;
   const dateoutput = document.getElementsByClassName('date')[0].innerHTML;
+  const timeuntiloutput = document.getElementsByClassName('timeuntil')[0].innerHTML;
   var goal = 24420;
   var period = ""
   var myArray = []
@@ -1006,6 +1015,7 @@ section {
     var arr = data[str];
     var periods = arr[1];
     var largestUnder = -1;
+    var largest = -1;
     myArray = []
 
     var schoolStart = 10000000;
@@ -1018,15 +1028,32 @@ section {
       if (k < val && k > largestUnder){
         largestUnder = k;
       }
+      if (k > largest){
+        largest = k;
+      }
     }
     if (largestUnder == -1){
       goal = schoolStart
       period = "Before School"
+      document.getElementsByClassName('timeuntil')[0].innerHTML = timeuntiloutput.replace('%inf',"period starts...")
+    }
+    else if (periods[largestUnder][0] - val < 0 && largestUnder != largest){
+      document.getElementsByClassName('timeuntil')[0].innerHTML = timeuntiloutput.replace('%inf',"period starts...")
+      for (let k in periods){
+        k = parseInt(k)
+        if (k > largestUnder){
+          goal = k;
+          break;
+        }
+      }
+      period = "Transition"
     }
     else{
       period = periods[largestUnder][1]
       goal = periods[largestUnder][0];
+      document.getElementsByClassName('timeuntil')[0].innerHTML = timeuntiloutput.replace('%inf',"period ends...")
     }
+
     
 
   }
@@ -1068,6 +1095,7 @@ section {
     var newdate = monthe + "/" + daye + "/" + yeare;
 
     document.getElementsByClassName('date')[0].innerHTML = dateoutput.replace('%ss',newdate)
+
   }
   updateSchedule()
   countDownDate();
