@@ -1,4 +1,5 @@
 import xlrd
+import pyperclip
 workbook = xlrd.open_workbook("Complete Calender.xlsx")
 worksheet = workbook.sheet_by_index(0)
 
@@ -13,8 +14,8 @@ for i in range(worksheet.nrows):
 		date = s.split()[0]
 		event = " ".join(s.split()[1:])
 		# print(date, event)
-		print(date, event)
-		schedule[date.encode("utf-8")] = [event.encode("utf-8"), {}]
+		# print(date, event)
+		schedule[date] = [event, {}]
 
 # dictionary = {}
 # for j in range(worksheet2.ncols):
@@ -36,7 +37,9 @@ def turnNum(s):
 	if (int(s[0]) <= 5):
 		s[0] = int(s[0]) + 12
 	return int(s[0])*60*60 + int(s[1])*60
-# null = [['7:45', '8:10', 'Homeroom'],['8:15', '8:58', 'Period 1'], ['9:03', '9:46', 'Period 2'], ['9:51', '10:34', 'Period 3'], ['10:39', '11:22', 'Period 4'], ['11:22', '12:06', 'Lunch'], ['12:11', '12:54', 'Period 5'], ['12:59', '1:42', 'Period 6'], ['1:47', '2:30', 'Period 7'], ['2:40', '3:25', 'Period 8']]
+
+noStudyHall = "9/2 9/23 10/21 11/4 12/22 1/13 2/17 3/30 4/20 5/26 6/9".split()
+
 for data in schedule:
 	event = schedule[data][0]
 
@@ -51,9 +54,20 @@ for data in schedule:
 		for info in scheds["HR"]:
 			schedule[data][1][turnNum(info[0])] = [turnNum(info[1]),  str(info[2])]
 
-		schedule[data][0] += " (Showing Homeroom Schedule)".encode("utf-8")
+		schedule[data][0] += " (Showing Homeroom Schedule)"
 		continue
 	for info in scheds[key]:
 		schedule[data][1][turnNum(info[0])] = [turnNum(info[1]), str(info[2])]
+	
+for data in schedule:
+	if 52800 in schedule[data][1]:
+
+		schedule[data][1][52620] = schedule[data][1][52800]
+		del schedule[data][1][52800]
+	
+for data in noStudyHall:
+	schedule[data][0] += " (No Eighth)"
+	del schedule[data][1][max(schedule[data][1])]
+
 schedule['base'] =['No School (Most Likely)', {0: [0, 'NONE']}]
-print(schedule)
+pyperclip.copy(str(schedule))
