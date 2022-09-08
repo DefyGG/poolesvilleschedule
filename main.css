@@ -100,11 +100,65 @@ h6 {
 }
 
 #header h1 {
-  margin: 0 0 10px 0;
+  margin: 0 0 5px 0;
   font-size: 48px;
   font-weight: 700;
   line-height: 56px;
   color: #fff;
+}
+#main a:link {
+  color: black;
+  background-color: transparent;
+  margin: 0 0 10px 0;
+  text-decoration: none;
+}
+
+#main a:visited {
+  color: black;
+  background-color: transparent;
+  text-decoration: none;
+  margin: 0 0 10px 0;
+}
+
+#main a:hover {
+  color: white;
+  background-color: transparent;
+  text-decoration: underline;
+  margin: 0 0 10px 0;
+}
+
+#main a:active {
+  color: white;
+  background-color: transparent;
+  text-decoration: underline;
+  margin: 0 0 10px 0;
+}
+#header a:link {
+  color: black;
+  background-color: transparent;
+  margin: 0 0 10px 0;
+  text-decoration: none;
+}
+
+#header a:visited {
+  color: black;
+  background-color: transparent;
+  text-decoration: none;
+  margin: 0 0 10px 0;
+}
+
+#header a:hover {
+  color: white;
+  background-color: transparent;
+  text-decoration: underline;
+  margin: 0 0 10px 0;
+}
+
+#header a:active {
+  color: white;
+  background-color: transparent;
+  text-decoration: underline;
+  margin: 0 0 10px 0;
 }
 
 #header h2 {
