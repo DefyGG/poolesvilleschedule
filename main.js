@@ -90,6 +90,13 @@ window.dataLayer = window.dataLayer || [];
     return "" + Math.floor(time/60/60) + ":" + (Math.floor((time/60))%60 < 10 ? "0" : "") + Math.floor((time/60))%60;
   }
 
+  const getDate = async function() {
+    let response = await fetch("https://worldtimeapi.org/api/timezone/America/New_York")
+    let blob = await response.blob()
+    let timezone_data = JSON.parse(await blob.text())
+    return new Date(timezone_data.unixtime * 1000)
+  }
+
   const calculateGoal = function() {
     const date = new Date();
     const day = date.getDate();
