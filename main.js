@@ -90,11 +90,13 @@ window.dataLayer = window.dataLayer || [];
     return "" + Math.floor(time/60/60) + ":" + (Math.floor((time/60))%60 < 10 ? "0" : "") + Math.floor((time/60))%60;
   }
 
+  /// returns the most accurate date available at the current time
+  /// if a connection to worldtimeapi.org is available, the time will be fetched from there
+  /// otherwise the time will be fetched from the javascript default (which is the local computer)
   const reliableDate = async function() {
     try {
       return await dateEdt()
     } catch {
-      console.log("catch activated, reverting to system time!")
       return new Date()
     }
   }
