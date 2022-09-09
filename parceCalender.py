@@ -1,5 +1,6 @@
 import xlrd
-import pyperclip
+import json
+# import pyperclip
 workbook = xlrd.open_workbook("Complete Calender.xlsx")
 worksheet = workbook.sheet_by_index(0)
 
@@ -16,7 +17,6 @@ for i in range(worksheet.nrows):
 		# print(date, event)
 		# print(date, event)
 		schedule[date] = [event, {}]
-
 # dictionary = {}
 # for j in range(worksheet2.ncols):
 # 	l = []
@@ -40,9 +40,7 @@ def turnNum(s):
 
 noStudyHall = "9/2 9/23 10/21 11/4 12/22 1/13 2/17 3/30 4/20 5/26 6/9".split()
 
-for data in schedule:
-	event = schedule[data][0]
-
+for data, event in schedule.items():
 	key = ""
 	for item in scheds:
 		if (str(item) in str(event)):
@@ -70,4 +68,5 @@ for data in noStudyHall:
 	del schedule[data][1][max(schedule[data][1])]
 
 schedule['base'] =['No School (Most Likely)', {0: [0, 'NONE']}]
-pyperclip.copy(str(schedule))
+with open('data.json', 'w') as data_file:
+	data_file.write( json.dumps(schedule, indent = 2))
