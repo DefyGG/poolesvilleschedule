@@ -34,12 +34,17 @@ body::before {
 }
 
 a {
-  color: #24b7a4;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 3px;
+  color: white;
   text-decoration: none;
 }
 
 a:hover {
-  color: #36d8c3;
+  border: 2px solid rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  color: black;
   text-decoration: none;
 }
 
@@ -106,7 +111,7 @@ h6 {
   line-height: 56px;
   color: #fff;
 }
-#main a:link {
+/*#main a:link {
   color: black;
   background-color: transparent;
   margin: 0 0 10px 0;
@@ -159,11 +164,12 @@ h6 {
   background-color: transparent;
   text-decoration: underline;
   margin: 0 0 10px 0;
-}
+}*/
 
 #header h2 {
   color: #eee;
-  margin-bottom: 40px;
+  margin-top: 15px;
+  margin-bottom: 25px;
   font-size: 22px;
 }
 
