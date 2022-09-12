@@ -96,10 +96,6 @@ window.dataLayer = window.dataLayer || [];
   /// if a connection to worldtimeapi.org is available, the time will be fetched from there
   /// otherwise the time will be fetched from the javascript default (which is the local computer)
   const reliableDate = async function() {
-    if (document.getElementById("useLocalTime").checked) {
-      return new Date()
-    }
-
     try {
       return await dateEdt()
     } catch {
