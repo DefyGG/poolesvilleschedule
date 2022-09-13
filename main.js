@@ -108,8 +108,27 @@ const proccessTime = function(time) {
 	return "" + Math.floor(time / 60 / 60) + ":" + (Math.floor((time / 60)) % 60 < 10 ? "0" : "") + Math.floor((time / 60)) % 60;
 }
 
-const calculateGoal = function() {
-	const date = new Date();
+
+/// returns the most accurate date available at the current time
+/// if a connection to worldtimeapi.org is available, the time will be fetched from there
+/// otherwise the time will be fetched from the javascript default (which is the local computer)
+const reliableDate = async function() {
+  try {
+    return await dateEdt()
+  } catch {
+    return new Date()
+  }
+}
+
+const dateEdt = async function() {
+  let response = await fetch("https://worldtimeapi.org/api/timezone/America/New_York")
+  let blob = await response.blob()
+  let timezone_data = JSON.parse(await blob.text())
+  return new Date(timezone_data.unixtime * 1000)
+}
+
+const calculateGoal = async function() {
+	const date = await reliableDate();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
 	const year = date.getFullYear();
@@ -162,10 +181,10 @@ const calculateGoal = function() {
 
 
 }
-const countDownDate = function() {
+const countDownDate = async function() {
 	calculateGoal();
 	// console.log(data['8/22'])
-	const date = new Date();
+	const date = await reliableDate();
 
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
@@ -191,7 +210,7 @@ const countDownDate = function() {
 	countdown.innerHTML = output.replace('%h', hours).replace('%m', minutes).replace('%s', seconds);
 	document.getElementsByClassName('period')[0].innerHTML = periodoutput.replace('%d', period)
 	document.getElementsByClassName('stype')[0].innerHTML = typeoutput.replace('%a', data[str][0])
-	let dateObj = new Date();
+	let dateObj = await reliableDate();
 	let monthe = dateObj.getMonth() + 1; //months from 1-12
 	let daye = dateObj.getDate();
 	let yeare = dateObj.getFullYear();
