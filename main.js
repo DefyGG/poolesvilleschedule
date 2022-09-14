@@ -7,6 +7,28 @@ const gtag = (...args) => dataLayer.push(args);
 gtag('js', new Date());
 gtag('config', 'UA-146662310-1');
 
+class DateProvider {
+  constructor() {
+  }
+
+  /// returns the most accurate date available at the current time
+  /// if a connection to worldtimeapi.org is available, the time will be fetched from there
+  /// otherwise the time will be fetched from the javascript default (which is the local computer)
+  async date() {
+    try {
+      return await this.queryDateEdt()
+    } catch {
+      return new Date()
+    }
+  }
+
+  async queryDateEdt() {
+    return await fetch("https://worldtimeapi.org/api/timezone/America/New_York")
+      .then(response => response.json())
+      .then(json => new Date(json.unixtime * 1000))
+  }
+}
+
 let countdown = select('.countdown');
 const output = countdown.innerHTML;
 const periodoutput = document.getElementsByClassName('period')[0].innerHTML;
@@ -17,6 +39,8 @@ let goal = 24420;
 let period = ""
 let myArray = []
 let data;
+
+let dateProvider = new DateProvider()
 
 main()
 
@@ -109,26 +133,8 @@ const proccessTime = function(time) {
 }
 
 
-/// returns the most accurate date available at the current time
-/// if a connection to worldtimeapi.org is available, the time will be fetched from there
-/// otherwise the time will be fetched from the javascript default (which is the local computer)
-const reliableDate = async function() {
-  try {
-    return await dateEdt()
-  } catch {
-    return new Date()
-  }
-}
-
-const dateEdt = async function() {
-  let response = await fetch("https://worldtimeapi.org/api/timezone/America/New_York")
-  let blob = await response.blob()
-  let timezone_data = JSON.parse(await blob.text())
-  return new Date(timezone_data.unixtime * 1000)
-}
-
 const calculateGoal = async function() {
-	const date = await reliableDate();
+	const date = await dateProvider.date();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
 	const year = date.getFullYear();
@@ -184,7 +190,7 @@ const calculateGoal = async function() {
 const countDownDate = async function() {
 	calculateGoal();
 	// console.log(data['8/22'])
-	const date = await reliableDate();
+	const date = await dateProvider.date();
 
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
@@ -210,7 +216,7 @@ const countDownDate = async function() {
 	countdown.innerHTML = output.replace('%h', hours).replace('%m', minutes).replace('%s', seconds);
 	document.getElementsByClassName('period')[0].innerHTML = periodoutput.replace('%d', period)
 	document.getElementsByClassName('stype')[0].innerHTML = typeoutput.replace('%a', data[str][0])
-	let dateObj = await reliableDate();
+	let dateObj = await dateProvider.date();
 	let monthe = dateObj.getMonth() + 1; //months from 1-12
 	let daye = dateObj.getDate();
 	let yeare = dateObj.getFullYear();
