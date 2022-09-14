@@ -8,25 +8,49 @@ gtag('js', new Date());
 gtag('config', 'UA-146662310-1');
 
 class DateProvider {
-  constructor() {
-  }
 
-  /// returns the most accurate date available at the current time
-  /// if a connection to worldtimeapi.org is available, the time will be fetched from there
-  /// otherwise the time will be fetched from the javascript default (which is the local computer)
-  async date() {
-    try {
-      return await this.queryDateEdt()
-    } catch {
-      return new Date()
-    }
-  }
+	static FIVE_MINUTES = 5 * 60 * 1000
+	static FIVE_SECONDS = 5 * 1000
 
-  async queryDateEdt() {
-    return await fetch("https://worldtimeapi.org/api/timezone/America/New_York")
-      .then(response => response.json())
-      .then(json => new Date(json.unixtime * 1000))
-  }
+	anchor = new Date()
+	fromNetwork
+
+	constructor() {
+
+	}
+
+	/// returns the most accurate date available at the current time
+	/// if a connection to worldtimeapi.org is available, the time will be fetched from there
+	/// otherwise the time will be fetched from the javascript default (which is the local computer)
+	async date() {
+		try {
+			return await this.lazyNetworkDate()
+		} catch {
+			return new Date()
+		}
+	}
+
+	async lazyNetworkDate() {
+		// refresh all measurements every so often
+		let timeOffset = new Date() - this.anchor
+		if (timeOffset > DateProvider.FIVE_MINUTES) {
+			this.anchor = new Date()
+			this.fromNetwork = await this.queryDateEdt() //TODO: blocking this is unnecessary
+		}
+
+		// null guard for fromNetwork
+		if (this.fromNetwork == null) {
+			this.fromNetwork = await this.queryDateEdt()
+		}
+
+		return new Date(this.fromNetwork.getTime() + timeOffset)
+	}
+
+	async queryDateEdt() {
+		return await fetch("https://worldtimeapi.org/api/timezone/America/New_York")
+			.then(response => response.json())
+			.then(json => new Date(json.unixtime * 1000))
+	}
 }
 
 let countdown = select('.countdown');
