@@ -13,7 +13,12 @@ class DateProvider {
 	static FIVE_SECONDS = 5 * 1000
 
 	anchor = new Date()
-	fromNetwork
+	networkTime
+
+	/// This should be a mutex, but I'm too lazy to write a type and pullin in a library is not good
+	///
+	/// True whenever the network time is being set from null
+	networkTimeLock = false
 
 	constructor() {}
 
@@ -24,6 +29,7 @@ class DateProvider {
 		try {
 			return await this.lazyNetworkDate()
 		} catch {
+			console.log("falling back to local time")
 			return new Date()
 		}
 	}
@@ -37,16 +43,35 @@ class DateProvider {
 					this.fromNetwork = date // non-blocking update to refresh time
 					this.anchor = new Date() // anchor must be concurrent with the network time
 				}) 
-				.catch(_ => this.fromNetwork = null) // if network not detected, unset network time
+				.catch(_ => this.networkTime = null) // if network not detected, unset network time
+		}
+
+		// locks if null guard was activated on another task
+		if (this.networkTimeLock) {
+			await new Promise((resolve) => {
+				setTimeout(() => {
+					console.log(`waiting for revert to network time`)
+					if (!this.networkTimeLock) resolve()
+				}, 50)
+			})
 		}
 
 		// null guard for fromNetwork
-		if (this.fromNetwork == null) {
-			this.fromNetwork = await this.queryDateEdt() // no-network error originates from here
+		if (this.networkTime == null) {
+			console.log("try reverting to network time")
+			this.networkTimeLock = true
+			this.networkTime = await this.queryDateEdt() // no-network error originates from here
+				.catch((err) => {
+					console.log("could not find network time")
+					this.networkTimeLock = false
+					throw err
+				})
+			this.networkTimeLock = false
+			console.log("network time found")
 			this.anchor = new Date()
 		}
 
-		return new Date(this.fromNetwork.getTime() + timeOffset)
+		return new Date(this.networkTime.getTime() + timeOffset)
 	}
 
 	async queryDateEdt() {
