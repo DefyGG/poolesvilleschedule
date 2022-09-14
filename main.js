@@ -32,15 +32,18 @@ class DateProvider {
 		// refresh all measurements every so often
 		let timeOffset = new Date() - this.anchor
 		if (timeOffset > DateProvider.FIVE_MINUTES) {
-			this.anchor = new Date()
 			this.queryDateEdt()
-				.then(date => this.fromNetwork = date) // non-blocking update to refresh time
+				.then(date => {
+					this.fromNetwork = date // non-blocking update to refresh time
+					this.anchor = new Date() // anchor must be concurrent with the network time
+				}) 
 				.catch(_ => this.fromNetwork = null) // if network not detected, unset network time
 		}
 
 		// null guard for fromNetwork
 		if (this.fromNetwork == null) {
-			this.fromNetwork = await this.queryDateEdt() // no network error originates from here
+			this.fromNetwork = await this.queryDateEdt() // no-network error originates from here
+			this.anchor = new Date()
 		}
 
 		return new Date(this.fromNetwork.getTime() + timeOffset)
