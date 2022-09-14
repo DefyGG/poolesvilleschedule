@@ -49,8 +49,6 @@ class DateProvider {
 	anchor = new Date()
 	networkTime
 
-	/// This should be a mutex, but I'm too lazy to write a type and pullin in a library is not good
-	///
 	/// True whenever the network time is being set from null
 	networkTimeLock = new Mutex()
 
