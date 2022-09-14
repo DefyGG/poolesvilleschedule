@@ -7,6 +7,36 @@ const gtag = (...args) => dataLayer.push(args);
 gtag('js', new Date());
 gtag('config', 'UA-146662310-1');
 
+
+class Mutex {
+	static #GUARD_RANGE = 4294967296
+	lockGuard = null
+
+	constructor() {}
+
+	tryLock() {
+		if (this.lockGuard == null) {
+			this.locked = true
+			return Math.floor(Math.random() * Mutex.#GUARD_RANGE)
+		}
+	}
+
+	tryUnlock(guard) {
+		if (this.lockGuard != null && this.lockGuard === guard) {
+			this.lock_guard = null
+			return true
+		} else {
+			return false
+		}
+	}
+
+	spinOn(spin_delay = 50) {
+		return new Promise((resolve => {
+			setTimeout(() => { if (!this.networkTimeLock) resolve() }, spin_delay)
+		}))
+	}
+}
+
 class DateProvider {
 
 	static FIVE_MINUTES = 5 * 60 * 1000
@@ -18,7 +48,7 @@ class DateProvider {
 	/// This should be a mutex, but I'm too lazy to write a type and pullin in a library is not good
 	///
 	/// True whenever the network time is being set from null
-	networkTimeLock = false
+	networkTimeLock = new Mutex()
 
 	constructor() {}
 
@@ -47,26 +77,18 @@ class DateProvider {
 		}
 
 		// locks if null guard was activated on another task
-		if (this.networkTimeLock) {
-			await new Promise((resolve) => {
-				setTimeout(() => {
-					console.log(`waiting for revert to network time`)
-					if (!this.networkTimeLock) resolve()
-				}, 50)
-			})
-		}
+		await this.networkTimeLock.spinOn()
 
 		// null guard for fromNetwork
 		if (this.networkTime == null) {
-			console.log("try reverting to network time")
-			this.networkTimeLock = true
+			let guard = this.networkTimeLock.tryLock()
 			this.networkTime = await this.queryDateEdt() // no-network error originates from here
 				.catch((err) => {
 					console.log("could not find network time")
-					this.networkTimeLock = false
+					this.networkTimeLock.tryUnlock(guard)
 					throw err
 				})
-			this.networkTimeLock = false
+			this.networkTimeLock.tryUnlock(guard)
 			console.log("network time found")
 			this.anchor = new Date()
 		}
