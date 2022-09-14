@@ -14,10 +14,6 @@ class Mutex {
 
 	constructor() {}
 
-	lockGuard() {
-		return this.#lockGuard
-	}
-
 	tryLock() {
 		if (this.#lockGuard == null) {
 			this.#lockGuard = Math.floor(Math.random() * Mutex.#GUARD_RANGE)
@@ -37,7 +33,7 @@ class Mutex {
 	spinOn(spin_delay = 50) {
 		return new Promise((resolve => {
 			setInterval(() => {
-				if (this.lockGuard() === null) {
+				if (this.#lockGuard === null) {
 					resolve()
 				}
 			}, spin_delay)
