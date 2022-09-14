@@ -15,9 +15,7 @@ class DateProvider {
 	anchor = new Date()
 	fromNetwork
 
-	constructor() {
-
-	}
+	constructor() {}
 
 	/// returns the most accurate date available at the current time
 	/// if a connection to worldtimeapi.org is available, the time will be fetched from there
@@ -35,12 +33,14 @@ class DateProvider {
 		let timeOffset = new Date() - this.anchor
 		if (timeOffset > DateProvider.FIVE_MINUTES) {
 			this.anchor = new Date()
-			this.fromNetwork = await this.queryDateEdt() //TODO: blocking this is unnecessary
+			this.queryDateEdt()
+				.then(date => this.fromNetwork = date) // non-blocking update to refresh time
+				.catch(_ => this.fromNetwork = null) // if network not detected, unset network time
 		}
 
 		// null guard for fromNetwork
 		if (this.fromNetwork == null) {
-			this.fromNetwork = await this.queryDateEdt()
+			this.fromNetwork = await this.queryDateEdt() // no network error originates from here
 		}
 
 		return new Date(this.fromNetwork.getTime() + timeOffset)
