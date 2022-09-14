@@ -10,20 +10,24 @@ gtag('config', 'UA-146662310-1');
 
 class Mutex {
 	static #GUARD_RANGE = 4294967296
-	lockGuard = null
+	#lockGuard = null
 
 	constructor() {}
 
+	lockGuard() {
+		return this.#lockGuard
+	}
+
 	tryLock() {
-		if (this.lockGuard == null) {
-			this.locked = true
-			return Math.floor(Math.random() * Mutex.#GUARD_RANGE)
+		if (this.#lockGuard == null) {
+			this.#lockGuard = Math.floor(Math.random() * Mutex.#GUARD_RANGE)
+			return this.#lockGuard
 		}
 	}
 
 	tryUnlock(guard) {
-		if (this.lockGuard != null && this.lockGuard === guard) {
-			this.lock_guard = null
+		if (this.#lockGuard != null && this.#lockGuard === guard) {
+			this.#lockGuard = null
 			return true
 		} else {
 			return false
@@ -32,7 +36,11 @@ class Mutex {
 
 	spinOn(spin_delay = 50) {
 		return new Promise((resolve => {
-			setTimeout(() => { if (!this.networkTimeLock) resolve() }, spin_delay)
+			setInterval(() => {
+				if (this.lockGuard() === null) {
+					resolve()
+				}
+			}, spin_delay)
 		}))
 	}
 }
