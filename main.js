@@ -82,10 +82,11 @@ class DateProvider {
 				.catch(_ => this.networkTime = null) // if network not detected, unset network time
 		}
 
-		// locks if null guard was activated on another task
+		// DOES NOT LOCK if null guard was activated on another task
 
 		// null guard for fromNetwork
 		if (this.networkTime == null) {
+			// if networkTime is null, create a job to set it
 			if (!this.networkTimeLock.isLocked()) {
 				setTimeout(this.fillNetworkTime().catch(
 					err => console.log('could not connect to worldtimeapi.org for network time'
@@ -94,6 +95,7 @@ class DateProvider {
 			console.log("falling back to local time while waiting for network time")
 			return new Date()
 		} else {
+			// otherwise allow the 
 			return new Date(this.networkTime.getTime() + timeOffset)
 		}
 	}
