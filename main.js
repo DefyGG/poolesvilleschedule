@@ -65,7 +65,7 @@ class DateProvider {
 		try {
 			return this.lazyNetworkDate()
 		} catch {
-			console.log("falling back to local time")
+			console.log("falling back to local time due to synchronization error")
 			return new Date()
 		}
 	}
@@ -87,9 +87,11 @@ class DateProvider {
 		// null guard for fromNetwork
 		if (this.networkTime == null) {
 			if (!this.networkTimeLock.isLocked()) {
-				setTimeout(this.fillNetworkTime().catch(err => console.err(err)), 0)
+				setTimeout(this.fillNetworkTime().catch(
+					err => console.log('could not connect to worldtimeapi.org for network time'
+				)), 0)
 			}
-			console.log("falling back to local time")
+			console.log("falling back to local time while waiting for network time")
 			return new Date()
 		} else {
 			return new Date(this.networkTime.getTime() + timeOffset)
