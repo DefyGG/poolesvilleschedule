@@ -182,7 +182,12 @@ if (backtotop) {
 	onscroll(document, toggleBacktotop)
 }
 
-
+const getEmergencyMessage = async function() {
+	return await fetch("https://montgomeryschoolsmd.org/")
+		.then(response => response.text())
+		.then(text => DOMParser.parseFromString(text, "text/html"))
+		.then(document => document.getElementsByClassName("MSG_EMER"))
+}
 
 function updateSchedule() {
 	calculateGoal()
