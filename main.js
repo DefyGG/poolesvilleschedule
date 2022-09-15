@@ -56,7 +56,7 @@ class DateProvider {
 	/// True whenever the network time is being set from null
 	networkTimeLock = new Mutex()
 
-	constructor() { }
+	constructor() {}
 
 	/// returns the most accurate date available at the current time
 	/// if a connection to worldtimeapi.org is available, the time will be fetched from there
@@ -221,7 +221,7 @@ function updateSchedule() {
 
 	document.getElementsByClassName('scheds')[0].innerHTML = result;
 }
-const proccessTime = function (time) {
+const proccessTime = function(time) {
 	if (Math.floor(time / 60 / 60) > 12) {
 		time -= 12 * 60 * 60;
 	}
@@ -283,7 +283,7 @@ const calculateGoal = async function () {
 
 
 }
-const countDownDate = async function () {
+const countDownDate = async function() {
 	calculateGoal();
 	// console.log(data['8/22'])
 	const date = dateProvider.date();
