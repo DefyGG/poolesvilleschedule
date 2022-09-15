@@ -7,104 +7,6 @@ const gtag = (...args) => dataLayer.push(args);
 gtag('js', new Date());
 gtag('config', 'UA-146662310-1');
 
-
-class Mutex {
-	static #GUARD_RANGE = 4294967296
-	#lockGuard = null
-
-	constructor() {}
-
-	tryLock() {
-		if (this.#lockGuard == null) {
-			this.#lockGuard = Math.floor(Math.random() * Mutex.#GUARD_RANGE)
-			return this.#lockGuard
-		}
-	}
-
-	tryUnlock(guard) {
-		if (this.#lockGuard != null && this.#lockGuard === guard) {
-			this.#lockGuard = null
-			return true
-		} else {
-			return false
-		}
-	}
-
-	spinOn(spin_delay = 50) {
-		return new Promise((resolve => {
-			setInterval(() => {
-				if (this.#lockGuard === null) {
-					resolve()
-				}
-			}, spin_delay)
-		}))
-	}
-}
-
-class DateProvider {
-
-	static FIVE_MINUTES = 5 * 60 * 1000
-	static FIVE_SECONDS = 5 * 1000
-
-	anchor = new Date()
-	networkTime
-
-	/// True whenever the network time is being set from null
-	networkTimeLock = new Mutex()
-
-	constructor() {}
-
-	/// returns the most accurate date available at the current time
-	/// if a connection to worldtimeapi.org is available, the time will be fetched from there
-	/// otherwise the time will be fetched from the javascript default (which is the local computer)
-	async date() {
-		try {
-			return await this.lazyNetworkDate()
-		} catch {
-			console.log("falling back to local time")
-			return new Date()
-		}
-	}
-
-	async lazyNetworkDate() {
-		// refresh all measurements every so often
-		let timeOffset = new Date() - this.anchor
-		if (timeOffset > DateProvider.FIVE_MINUTES) {
-			this.queryDateEdt()
-				.then(date => {
-					this.fromNetwork = date // non-blocking update to refresh time
-					this.anchor = new Date() // anchor must be concurrent with the network time
-				}) 
-				.catch(_ => this.networkTime = null) // if network not detected, unset network time
-		}
-
-		// locks if null guard was activated on another task
-		await this.networkTimeLock.spinOn()
-
-		// null guard for fromNetwork
-		if (this.networkTime == null) {
-			let guard = this.networkTimeLock.tryLock()
-			this.networkTime = await this.queryDateEdt() // no-network error originates from here
-				.catch((err) => {
-					console.log("could not find network time")
-					this.networkTimeLock.tryUnlock(guard)
-					throw err
-				})
-			this.networkTimeLock.tryUnlock(guard)
-			console.log("network time found")
-			this.anchor = new Date()
-		}
-
-		return new Date(this.networkTime.getTime() + timeOffset)
-	}
-
-	async queryDateEdt() {
-		return await fetch("https://worldtimeapi.org/api/timezone/America/New_York")
-			.then(response => response.json())
-			.then(json => new Date(json.unixtime * 1000))
-	}
-}
-
 let countdown = select('.countdown');
 const output = countdown.innerHTML;
 const periodoutput = document.getElementsByClassName('period')[0].innerHTML;
@@ -115,8 +17,6 @@ let goal = 24420;
 let period = ""
 let myArray = []
 let data;
-
-let dateProvider = new DateProvider()
 
 main()
 
@@ -208,9 +108,8 @@ const proccessTime = function(time) {
 	return "" + Math.floor(time / 60 / 60) + ":" + (Math.floor((time / 60)) % 60 < 10 ? "0" : "") + Math.floor((time / 60)) % 60;
 }
 
-
-const calculateGoal = async function() {
-	const date = await dateProvider.date();
+const calculateGoal = function() {
+	const date = new Date();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
 	const year = date.getFullYear();
@@ -263,10 +162,10 @@ const calculateGoal = async function() {
 
 
 }
-const countDownDate = async function() {
+const countDownDate = function() {
 	calculateGoal();
 	// console.log(data['8/22'])
-	const date = await dateProvider.date();
+	const date = new Date();
 
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
@@ -292,7 +191,7 @@ const countDownDate = async function() {
 	countdown.innerHTML = output.replace('%h', hours).replace('%m', minutes).replace('%s', seconds);
 	document.getElementsByClassName('period')[0].innerHTML = periodoutput.replace('%d', period)
 	document.getElementsByClassName('stype')[0].innerHTML = typeoutput.replace('%a', data[str][0])
-	let dateObj = await dateProvider.date();
+	let dateObj = new Date();
 	let monthe = dateObj.getMonth() + 1; //months from 1-12
 	let daye = dateObj.getDate();
 	let yeare = dateObj.getFullYear();
