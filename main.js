@@ -136,8 +136,6 @@ let period = ""
 let myArray = []
 let data;
 
-let dateProvider = new DateProvider()
-
 main()
 
 async function main() {
@@ -283,7 +281,7 @@ const calculateGoal = async function () {
 
 
 }
-const countDownDate = async function() {
+const countDownDate = function() {
 	calculateGoal();
 	// console.log(data['8/22'])
 	const date = dateProvider.date();
