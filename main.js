@@ -12,10 +12,14 @@ class Mutex {
 	static #GUARD_RANGE = 4294967296
 	#lockGuard = null
 
-	constructor() {}
+	constructor() { }
+
+	isLocked() {
+		return this.#lockGuard != null
+	}
 
 	tryLock() {
-		if (this.#lockGuard == null) {
+		if (this.#lockGuard === null) {
 			this.#lockGuard = Math.floor(Math.random() * Mutex.#GUARD_RANGE)
 			return this.#lockGuard
 		}
@@ -52,7 +56,7 @@ class DateProvider {
 	/// True whenever the network time is being set from null
 	networkTimeLock = new Mutex()
 
-	constructor() {}
+	constructor() { }
 
 	/// returns the most accurate date available at the current time
 	/// if a connection to worldtimeapi.org is available, the time will be fetched from there
@@ -74,28 +78,41 @@ class DateProvider {
 				.then(date => {
 					this.fromNetwork = date // non-blocking update to refresh time
 					this.anchor = new Date() // anchor must be concurrent with the network time
-				}) 
+				})
 				.catch(_ => this.networkTime = null) // if network not detected, unset network time
 		}
 
 		// locks if null guard was activated on another task
-		await this.networkTimeLock.spinOn()
+		// await this.networkTimeLock.spinOn()
 
 		// null guard for fromNetwork
 		if (this.networkTime == null) {
-			let guard = this.networkTimeLock.tryLock()
-			this.networkTime = await this.queryDateEdt() // no-network error originates from here
-				.catch((err) => {
-					console.log("could not find network time")
-					this.networkTimeLock.tryUnlock(guard)
-					throw err
-				})
-			this.networkTimeLock.tryUnlock(guard)
-			console.log("network time found")
-			this.anchor = new Date()
+			if (!this.networkTimeLock.isLocked()) {
+				setTimeout(this.fillNetworkTime(), 0)
+			}
+
+			return Date.now()
+		} else {
+			return new Date(this.networkTime.getTime() + timeOffset)
+		}
+	}
+
+	async fillNetworkTime() {
+		let guard = this.networkTimeLock.tryLock()
+
+		if (guard === null) {
+			throw new Error("Cannot query for network time, as another task is already doing so")
 		}
 
-		return new Date(this.networkTime.getTime() + timeOffset)
+		this.networkTime = await this.queryDateEdt() // no-network error originates from here
+			.catch((err) => {
+				console.log("could not find network time")
+				this.networkTimeLock.tryUnlock(guard)
+				throw err
+			})
+		this.networkTimeLock.tryUnlock(guard)
+		console.log("network time found")
+		this.anchor = new Date()
 	}
 
 	async queryDateEdt() {
@@ -201,7 +218,7 @@ function updateSchedule() {
 
 	document.getElementsByClassName('scheds')[0].innerHTML = result;
 }
-const proccessTime = function(time) {
+const proccessTime = function (time) {
 	if (Math.floor(time / 60 / 60) > 12) {
 		time -= 12 * 60 * 60;
 	}
@@ -209,7 +226,7 @@ const proccessTime = function(time) {
 }
 
 
-const calculateGoal = async function() {
+const calculateGoal = async function () {
 	const date = await dateProvider.date();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
@@ -263,7 +280,7 @@ const calculateGoal = async function() {
 
 
 }
-const countDownDate = async function() {
+const countDownDate = async function () {
 	calculateGoal();
 	// console.log(data['8/22'])
 	const date = await dateProvider.date();
@@ -284,7 +301,7 @@ const countDownDate = async function() {
 
 	let timeleft = goal - val;
 	if (timeleft <= 0) timeleft = 0
-	
+
 	let hours = Math.floor(timeleft / (60 * 60));
 	let minutes = Math.floor((timeleft - hours * 60 * 60) / 60);
 	let seconds = Math.floor((timeleft - hours * 60 * 60 - minutes * 60));
