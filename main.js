@@ -61,16 +61,16 @@ class DateProvider {
 	/// returns the most accurate date available at the current time
 	/// if a connection to worldtimeapi.org is available, the time will be fetched from there
 	/// otherwise the time will be fetched from the javascript default (which is the local computer)
-	async date() {
+	date() {
 		try {
-			return await this.lazyNetworkDate()
+			return this.lazyNetworkDate()
 		} catch {
 			console.log("falling back to local time")
 			return new Date()
 		}
 	}
 
-	async lazyNetworkDate() {
+	lazyNetworkDate() {
 		// refresh all measurements every so often
 		let timeOffset = new Date() - this.anchor
 		if (timeOffset > DateProvider.FIVE_MINUTES) {
@@ -83,15 +83,14 @@ class DateProvider {
 		}
 
 		// locks if null guard was activated on another task
-		// await this.networkTimeLock.spinOn()
 
 		// null guard for fromNetwork
 		if (this.networkTime == null) {
 			if (!this.networkTimeLock.isLocked()) {
-				setTimeout(this.fillNetworkTime(), 0)
+				setTimeout(this.fillNetworkTime().catch(err => console.err(err)), 0)
 			}
-
-			return Date.now()
+			console.log("falling back to local time")
+			return new Date()
 		} else {
 			return new Date(this.networkTime.getTime() + timeOffset)
 		}
@@ -227,7 +226,7 @@ const proccessTime = function (time) {
 
 
 const calculateGoal = async function () {
-	const date = await dateProvider.date();
+	const date = dateProvider.date();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
 	const year = date.getFullYear();
@@ -283,7 +282,7 @@ const calculateGoal = async function () {
 const countDownDate = async function () {
 	calculateGoal();
 	// console.log(data['8/22'])
-	const date = await dateProvider.date();
+	const date = dateProvider.date();
 
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
@@ -309,7 +308,7 @@ const countDownDate = async function () {
 	countdown.innerHTML = output.replace('%h', hours).replace('%m', minutes).replace('%s', seconds);
 	document.getElementsByClassName('period')[0].innerHTML = periodoutput.replace('%d', period)
 	document.getElementsByClassName('stype')[0].innerHTML = typeoutput.replace('%a', data[str][0])
-	let dateObj = await dateProvider.date();
+	let dateObj = dateProvider.date();
 	let monthe = dateObj.getMonth() + 1; //months from 1-12
 	let daye = dateObj.getDate();
 	let yeare = dateObj.getFullYear();
