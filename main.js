@@ -136,6 +136,8 @@ let period = ""
 let myArray = []
 let data;
 
+let dateProvider = new DateProvider()
+
 main()
 
 async function main() {
