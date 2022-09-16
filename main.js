@@ -309,6 +309,12 @@ const countDownDate = function() {
 	let minutes = Math.floor((timeleft - hours * 60 * 60) / 60);
 	let seconds = Math.floor((timeleft - hours * 60 * 60 - minutes * 60));
 
+    if (hours === 0) {
+		document.title = `${minutes}:${(seconds + '').padStart(2, '0')} PHS Schedule`
+    } else {
+		document.title = `${hours}:${(minutes + '').padStart(2, '0')} PHS Schedule`
+    }
+
 	countdown.innerHTML = output.replace('%h', hours).replace('%m', minutes).replace('%s', seconds);
 	document.getElementsByClassName('period')[0].innerHTML = periodoutput.replace('%d', period)
 	document.getElementsByClassName('stype')[0].innerHTML = typeoutput.replace('%a', data[str][0])
