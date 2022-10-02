@@ -1,6 +1,8 @@
 import xlrd
 import json
 # import pyperclip
+xlrd.xlsx.ensure_elementtree_imported(False, None)
+xlrd.xlsx.Element_has_iter = True
 workbook = xlrd.open_workbook("Complete Calender.xlsx")
 worksheet = workbook.sheet_by_index(0)
 
@@ -51,22 +53,46 @@ for data, event in schedule.items():
 	if key == "":
 		for info in scheds["HR"]:
 			schedule[data][1][turnNum(info[0])] = [turnNum(info[1]),  str(info[2])]
-
 		schedule[data][0] += " (Showing Homeroom Schedule)"
 		continue
 	for info in scheds[key]:
 		schedule[data][1][turnNum(info[0])] = [turnNum(info[1]), str(info[2])]
-	
+#Changing 2:40 to 2:37 has the start for 8th period (new update not reflected in updates)
 for data in schedule:
 	if 52800 in schedule[data][1]:
-
 		schedule[data][1][52620] = schedule[data][1][52800]
 		del schedule[data][1][52800]
-	
+
+#Removing 8th period for all classes
 for data in noStudyHall:
 	schedule[data][0] += " (No Eighth)"
 	del schedule[data][1][max(schedule[data][1])]
 
+#Adding FIT data to classes
+for data in schedule:
+	if ("FT" in schedule[data][0]):
+		# print(schedule[data][0])
+		# found = False
+		new_schedule = {}
+		for time in schedule[data][1]:
+			# print(schedule[data][1][time][0] - time )
+			if schedule[data][1][time][0] - time >= 3720:
+				new_schedule[time] = [schedule[data][1][time][0] - 19*60, schedule[data][1][time][1]]
+				new_schedule[schedule[data][1][time][0] - 19*60] = [schedule[data][1][time][0], "FIT"]
+				# print(schedule[data][0], schedule[data][1][time][1])
+			else:
+				new_schedule[time] = schedule[data][1][time]
+		schedule[data][1] = new_schedule
+		# print(found)
+		# if (found == False):
+		# 	print("broken")
+		# 	exit(0)
+		
+print("All working")
+
 schedule['base'] =['No School (Most Likely)', {0: [0, 'NONE']}]
+print("Finished processing")
+
 with open('data.json', 'w') as data_file:
+	print("Writing Data...")
 	data_file.write( json.dumps(schedule, indent = 2))
