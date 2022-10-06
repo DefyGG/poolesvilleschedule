@@ -1,6 +1,8 @@
 import xlrd
 import json
 # import pyperclip
+xlrd.xlsx.ensure_elementtree_imported(False, None)
+xlrd.xlsx.Element_has_iter = True
 workbook = xlrd.open_workbook("Complete Calender.xlsx")
 worksheet = workbook.sheet_by_index(0)
 
@@ -90,6 +92,7 @@ print("All working")
 
 schedule['base'] =['No School (Most Likely)', {0: [0, 'NONE']}]
 print("Finished processing")
+
 with open('data.json', 'w') as data_file:
 	print("Writing Data...")
 	data_file.write( json.dumps(schedule, indent = 2))
