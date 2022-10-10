@@ -1,12 +1,12 @@
-10/4
-FT1
-Period 1 7:45-8:33
-FIT 8:33-8:52
-Period 2 8:57-9:40
-Period 3 9:45-10:28
-Period 4 10:33-11:16
-Lunch 11:16-12:06
-Period 5 12:11-12:54
-Period 6 12:59-1:42
-Period 7 1:47-2:30
+10/10
+Advisory Schedule
+Period 1 7:45-8:30
+Period 2 8:35-9:17
+Advisory 9:22-9:47
+Period 3 9:52-10:34
+Period 4 10:39-11:21
+Lunch 11:21-12:09
+Period 5 12:14-12:56
+Period 6 1:01-1:43
+Period 7 1:48-2:30
 Period 8 2:37-3:25
