@@ -1,11 +1,5 @@
 "use strict";
 
-window.dataLayer = window.dataLayer || [];
-
-const gtag = (...args) => dataLayer.push(args);
-
-gtag('js', new Date());
-gtag('config', 'UA-146662310-1');
 
 let countdown = select('.countdown');
 const output = countdown.innerHTML;
