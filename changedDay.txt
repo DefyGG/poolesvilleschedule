@@ -1,9 +1,13 @@
-10/12
-PSAT Day
+11/16
+FT1
 PSAT Testing 7:45-11:45
-Lunch 11:50-12:30
-Period 5 12:35-1:03
-FIT 1:03-1:23
-Period 6 1:28-1:56
-Period 7 2:01-2:30
+Period 1 7:45-8:33
+FIT	8:33-8:52
+Period 2 8:57-9:40
+Period 3 9:45-10:28
+Period 4 10:33-11:16
+Lunch 11:16-12:06
+Period 5 12:11-12:54
+Period 6 12:59-1:42
+Period 7 1:47-2:30
 Period 8 2:37-3:25
