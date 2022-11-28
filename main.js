@@ -12,10 +12,14 @@ class Mutex {
 	static #GUARD_RANGE = 4294967296
 	#lockGuard = null
 
-	constructor() {}
+	constructor() { }
+
+	isLocked() {
+		return this.#lockGuard != null
+	}
 
 	tryLock() {
-		if (this.#lockGuard == null) {
+		if (this.#lockGuard === null) {
 			this.#lockGuard = Math.floor(Math.random() * Mutex.#GUARD_RANGE)
 			return this.#lockGuard
 		}
@@ -57,16 +61,16 @@ class DateProvider {
 	/// returns the most accurate date available at the current time
 	/// if a connection to worldtimeapi.org is available, the time will be fetched from there
 	/// otherwise the time will be fetched from the javascript default (which is the local computer)
-	async date() {
+	date() {
 		try {
-			return await this.lazyNetworkDate()
+			return this.lazyNetworkDate()
 		} catch {
-			console.log("falling back to local time")
+			console.log("falling back to local time due to synchronization error")
 			return new Date()
 		}
 	}
 
-	async lazyNetworkDate() {
+	lazyNetworkDate() {
 		// refresh all measurements every so often
 		let timeOffset = new Date() - this.anchor
 		if (timeOffset > DateProvider.FIVE_MINUTES) {
@@ -74,28 +78,44 @@ class DateProvider {
 				.then(date => {
 					this.fromNetwork = date // non-blocking update to refresh time
 					this.anchor = new Date() // anchor must be concurrent with the network time
-				}) 
+				})
 				.catch(_ => this.networkTime = null) // if network not detected, unset network time
 		}
 
-		// locks if null guard was activated on another task
-		await this.networkTimeLock.spinOn()
+		// DOES NOT LOCK if null guard was activated on another task
 
 		// null guard for fromNetwork
 		if (this.networkTime == null) {
-			let guard = this.networkTimeLock.tryLock()
-			this.networkTime = await this.queryDateEdt() // no-network error originates from here
-				.catch((err) => {
-					console.log("could not find network time")
-					this.networkTimeLock.tryUnlock(guard)
-					throw err
-				})
-			this.networkTimeLock.tryUnlock(guard)
-			console.log("network time found")
-			this.anchor = new Date()
+			// if networkTime is null, create a job to set it
+			if (!this.networkTimeLock.isLocked()) {
+				setTimeout(this.fillNetworkTime().catch(
+					err => console.log('could not connect to worldtimeapi.org for network time'
+				)), 0)
+			}
+			console.log("falling back to local time while waiting for network time")
+			return new Date()
+		} else {
+			// otherwise allow the 
+			return new Date(this.networkTime.getTime() + timeOffset)
+		}
+	}
+
+	async fillNetworkTime() {
+		let guard = this.networkTimeLock.tryLock()
+
+		if (guard === null) {
+			throw new Error("Cannot query for network time, as another task is already doing so")
 		}
 
-		return new Date(this.networkTime.getTime() + timeOffset)
+		this.networkTime = await this.queryDateEdt() // no-network error originates from here
+			.catch((err) => {
+				console.log("could not find network time")
+				this.networkTimeLock.tryUnlock(guard)
+				throw err
+			})
+		this.networkTimeLock.tryUnlock(guard)
+		console.log("network time found")
+		this.anchor = new Date()
 	}
 
 	async queryDateEdt() {
@@ -214,8 +234,8 @@ const proccessTime = function(time) {
 }
 
 
-const calculateGoal = async function() {
-	const date = await dateProvider.date();
+const calculateGoal = async function () {
+	const date = dateProvider.date();
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
 	const year = date.getFullYear();
@@ -268,10 +288,10 @@ const calculateGoal = async function() {
 
 
 }
-const countDownDate = async function() {
+const countDownDate = function() {
 	calculateGoal();
 	// console.log(data['8/22'])
-	const date = await dateProvider.date();
+	const date = dateProvider.date();
 
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
@@ -289,7 +309,7 @@ const countDownDate = async function() {
 
 	let timeleft = goal - val;
 	if (timeleft <= 0) timeleft = 0
-	
+
 	let hours = Math.floor(timeleft / (60 * 60));
 	let minutes = Math.floor((timeleft - hours * 60 * 60) / 60);
 	let seconds = Math.floor((timeleft - hours * 60 * 60 - minutes * 60));
@@ -297,7 +317,7 @@ const countDownDate = async function() {
 	countdown.innerHTML = output.replace('%h', hours).replace('%m', minutes).replace('%s', seconds);
 	document.getElementsByClassName('period')[0].innerHTML = periodoutput.replace('%d', period)
 	document.getElementsByClassName('stype')[0].innerHTML = typeoutput.replace('%a', data[str][0])
-	let dateObj = await dateProvider.date();
+	let dateObj = dateProvider.date();
 	let monthe = dateObj.getMonth() + 1; //months from 1-12
 	let daye = dateObj.getDate();
 	let yeare = dateObj.getFullYear();
