@@ -6,6 +6,7 @@ const output = countdown.innerHTML;
 const periodoutput = document.getElementsByClassName('period')[0].innerHTML;
 const typeoutput = document.getElementsByClassName('stype')[0].innerHTML;
 const dateoutput = document.getElementsByClassName('date')[0].innerHTML;
+const daysleft = document.getElementsByClassName('daysleft')[0].innerHTML;
 const timeuntiloutput = document.getElementsByClassName('timeuntil')[0].innerHTML;
 let goal = 24420;
 let period = ""
@@ -192,12 +193,16 @@ const countDownDate = function() {
 	document.getElementsByClassName('period')[0].innerHTML = periodoutput.replace('%d', period)
 	document.getElementsByClassName('stype')[0].innerHTML = typeoutput.replace('%a', data[str][0])
 	let dateObj = new Date();
+	let endSchool = new Date("06/16/2023");
 	let monthe = dateObj.getMonth() + 1; //months from 1-12
 	let daye = dateObj.getDate();
 	let yeare = dateObj.getFullYear();
 
 	let newdate = monthe + "/" + daye + "/" + yeare;
+	var dif = endSchool.getTime() - dateObj.getTime();
+	dif = dif / (1000 * 3600 * 24);
 
 	document.getElementsByClassName('date')[0].innerHTML = dateoutput.replace('%ss', newdate)
+	document.getElementsByClassName('daysleft')[0].innerHTML = daysleft.replace('%f', Math.floor(dif))
 
 }
