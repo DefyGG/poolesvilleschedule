@@ -203,6 +203,6 @@ const countDownDate = function() {
 	dif = dif / (1000 * 3600 * 24);
 
 	document.getElementsByClassName('date')[0].innerHTML = dateoutput.replace('%ss', newdate)
-	document.getElementsByClassName('daysleft')[0].innerHTML = daysleft.replace('%f', Math.floor(dif))
+	document.getElementsByClassName('daysleft')[0].innerHTML = daysleft.replace('%f', Math.floor(dif) + 1)
 
 }
