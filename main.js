@@ -6,7 +6,7 @@ const output = countdown.innerHTML;
 const periodoutput = document.getElementsByClassName('period')[0].innerHTML;
 const typeoutput = document.getElementsByClassName('stype')[0].innerHTML;
 const dateoutput = document.getElementsByClassName('date')[0].innerHTML;
-const daysleft = document.getElementsByClassName('daysleft')[0].innerHTML;
+// const daysleft = document.getElementsByClassName('daysleft')[0].innerHTML;
 const timeuntiloutput = document.getElementsByClassName('timeuntil')[0].innerHTML;
 let goal = 24420;
 let period = ""
@@ -203,6 +203,6 @@ const countDownDate = function() {
 	dif = dif / (1000 * 3600 * 24);
 
 	document.getElementsByClassName('date')[0].innerHTML = dateoutput.replace('%ss', newdate)
-	document.getElementsByClassName('daysleft')[0].innerHTML = daysleft.replace('%f', Math.floor(dif) + 1)
+	// document.getElementsByClassName('daysleft')[0].innerHTML = daysleft.replace('%f', Math.floor(dif) + 1)
 
 }
