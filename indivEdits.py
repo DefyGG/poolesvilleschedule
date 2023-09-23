@@ -11,7 +11,7 @@ def turnNum(s):
 data = ""
 with open('data.json') as json_file:
     data = json.load(json_file)
-    schedule = open("changedDay.txt", "r").readlines()
+    schedule = open("EarlyRelease.txt", "r").readlines()
     date = schedule[0].strip()
     del schedule[0]
     event_name = schedule[0].strip()
