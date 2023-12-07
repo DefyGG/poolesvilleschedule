@@ -56,7 +56,15 @@ h5,
 h6 {
   font-family: "Raleway", sans-serif;
 }
+.blink {
+  animation: blinker 1s step-start infinite;
+}
 
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
 #main {
   position: relative;
 }
