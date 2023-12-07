@@ -60,13 +60,14 @@ h6 {
   animation: blinker 1s step-start infinite;
 }
 
+.blink_me {
+  animation: blinker 1s linear infinite;
+}
+
 @keyframes blinker {
   50% {
     opacity: 0;
   }
-}
-#main {
-  position: relative;
 }
 
 /*--------------------------------------------------------------
