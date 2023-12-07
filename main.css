@@ -56,19 +56,7 @@ h5,
 h6 {
   font-family: "Raleway", sans-serif;
 }
-.blink {
-  animation: blinker 1s step-start infinite;
-}
 
-.blink_me {
-  animation: blinker 5s linear infinite;
-}
-
-@keyframes blinker {
-  50% {
-    opacity: 0;
-  }
-}
 
 /*--------------------------------------------------------------
 # Back to top button
