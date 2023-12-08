@@ -26,7 +26,15 @@ body::before {
   bottom: 0;
   background: rgba(49, 71, 89, 0.6);
 }
+.blink_me {
+  animation: blinker 5s linear infinite;
+}
 
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
 @media (min-width: 1024px) {
   body {
     background-attachment: fixed;
