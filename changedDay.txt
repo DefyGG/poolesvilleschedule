@@ -3,8 +3,8 @@ Delayed Opening
 Period 1 9:45-10:19
 Period 2 10:24-10:55
 Period 3 11:00-11:31
-Period 4 11:31-12:06
-Lunch 12:11-12:42
+Lunch 11:31-12:06
+Period 4 12:11-12:42
 Period 5 12:47-1:18
 Period 6 1:23-1:54
 Period 7 1:59-2:30
